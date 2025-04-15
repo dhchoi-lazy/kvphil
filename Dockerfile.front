@@ -1,0 +1,105 @@
+FROM node:18-alpine AS base
+FROM base AS deps
+
+RUN apk add --no-cache libc6-compat python3 make g++ gcc openssl
+WORKDIR /app
+
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
+COPY prisma ./prisma/
+
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
+# Add ARG statements to receive build args
+ARG POSTGRES_PASSWORD
+ENV DATABASE_URL=postgresql://dhchoi:${POSTGRES_PASSWORD}@internal.dh-choi.com:41991/kvphil_db
+
+RUN npx prisma generate
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+
+# Add ARG statements to receive build args
+ARG NODE_ENV
+ARG NEXT_PUBLIC_APP_URL
+ARG NEXT_PUBLIC_BASE_PATH
+ARG NEXT_PUBLIC_NEXTAUTH_URL
+ARG AUTH_URL
+ARG POSTGRES_PASSWORD
+
+# Set environment variables from build args
+ENV NODE_ENV=${NODE_ENV}
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+ENV NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH}
+ENV NEXT_PUBLIC_NEXTAUTH_URL=${NEXT_PUBLIC_NEXTAUTH_URL}
+ENV AUTH_URL=${AUTH_URL}
+ENV NEXT_PUBLIC_INTERNAL_API_URL=http://vpn-host:8080
+ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+ENV OPENAI_API_KEY=${OPENAI_API_KEY}
+ENV PORT=3000
+ENV DATABASE_URL=postgresql://dhchoi:${POSTGRES_PASSWORD}@internal.dh-choi.com:41991/kvphil_db
+
+COPY . .
+COPY .env .env
+
+
+
+RUN \
+  if [ -f yarn.lock ]; then yarn run build; \
+  elif [ -f package-lock.json ]; then npm run build; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
+
+# Add ARG statements to receive build args
+ARG NODE_ENV
+ARG NEXT_PUBLIC_APP_URL
+ARG NEXT_PUBLIC_BASE_PATH
+ARG NEXT_PUBLIC_NEXTAUTH_URL
+ARG AUTH_URL
+ARG POSTGRES_PASSWORD
+
+# Set environment variables from build args
+ENV NODE_ENV=${NODE_ENV}
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+ENV NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH}
+ENV NEXT_PUBLIC_NEXTAUTH_URL=${NEXT_PUBLIC_NEXTAUTH_URL}
+ENV AUTH_URL=${AUTH_URL}
+ENV NEXT_PUBLIC_INTERNAL_API_URL=http://vpn-host:8080
+ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+ENV OPENAI_API_KEY=${OPENAI_API_KEY}
+ENV DATABASE_URL=postgresql://dhchoi:${POSTGRES_PASSWORD}@internal.dh-choi.com:41991/kvphil_db
+
+# Uncomment the following line in case you want to disable telemetry during runtime.
+# ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+
+# server.js is created by next build from the standalone output
+# https://nextjs.org/docs/pages/api-reference/next-config-js/output
+ENV HOSTNAME="0.0.0.0"
+CMD ["node", "server.js"]

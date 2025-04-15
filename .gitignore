@@ -1,0 +1,205 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# =============================================================================
+# General
+# =============================================================================
+# OS-generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Editor/IDE specific files
+.vscode/
+.idea/
+*.swp
+*~
+*.bak
+*.tmp
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Credentials and Secrets (Ensure sensitive files are not committed)
+*.pem
+.env*
+# Consider adding specific credential files if used, e.g.:
+# .aws/
+# .gcp/
+# local_settings.py
+
+# =============================================================================
+# Python
+# =============================================================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+__pypackages__/ # PEP 582
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff
+db.sqlite3
+db.sqlite3-journal
+# local_settings.py # Already included in Secrets
+
+# Flask stuff
+instance/
+.webassets-cache
+
+# Scrapy stuff
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+# .python-version # Uncomment if you don't want to commit the python version
+
+# Poetry / Pipenv / PDM lock files (Optional - commit recommended for apps)
+# Pipfile.lock
+# poetry.lock
+# pdm.lock
+.pdm.toml
+.pdm-python
+.pdm-build/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# Type checkers
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+cython_debug/
+
+# =============================================================================
+# Node.js / Next.js
+# =============================================================================
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Testing
+/coverage
+
+# Next.js build output
+/.next/
+/out/
+
+# Production build output (if applicable besides Next.js)
+# /build # This was present, but might conflict with Python's build/
+
+# TypeScript build info
+*.tsbuildinfo
+next-env.d.ts
+
+# Debug logs (already included in General logs)
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+
+# =============================================================================
+# Other / Project Specific
+# =============================================================================
+# Vercel
+.vercel
+
+# Custom data directory
+data_work/*.jsonl
+data_work/**/*.xml
+data_work/**/*.html
+vectordb/*.jsonl
+
+# Specific backend pycache (redundant if __pycache__/ is ignored globally)
+# /backend/**/__pycache__/ # Covered by global __pycache__/ above
+
+
+
