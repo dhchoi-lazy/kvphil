@@ -16,7 +16,7 @@ RUN \
 
 # Add ARG statements to receive build args
 ARG POSTGRES_PASSWORD
-ENV DATABASE_URL=postgresql://dhchoi:${POSTGRES_PASSWORD}@internal.dh-choi.com:41991/kvphil_db
+ENV DATABASE_URL=postgresql://dhchoi_external:${POSTGRES_PASSWORD}@internal.dh-choi.com:41991/kvphil_db
 
 RUN npx prisma generate
 
@@ -43,7 +43,7 @@ ENV NEXT_PUBLIC_INTERNAL_API_URL=http://vpn-host:8080
 ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
 ENV OPENAI_API_KEY=${OPENAI_API_KEY}
 ENV PORT=3000
-ENV DATABASE_URL=postgresql://dhchoi:${POSTGRES_PASSWORD}@internal.dh-choi.com:41991/kvphil_db
+ENV DATABASE_URL=postgresql://dhchoi_external:${POSTGRES_PASSWORD}@internal.dh-choi.com:41991/kvphil_db
 
 COPY . .
 COPY .env .env
@@ -78,7 +78,7 @@ ENV AUTH_URL=${AUTH_URL}
 ENV NEXT_PUBLIC_INTERNAL_API_URL=http://vpn-host:8080
 ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
 ENV OPENAI_API_KEY=${OPENAI_API_KEY}
-ENV DATABASE_URL=postgresql://dhchoi:${POSTGRES_PASSWORD}@internal.dh-choi.com:41991/kvphil_db
+ENV DATABASE_URL=postgresql://dhchoi_external:${POSTGRES_PASSWORD}@internal.dh-choi.com:41991/kvphil_db
 
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED=1
