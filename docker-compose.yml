@@ -17,6 +17,7 @@ services:
     networks:
       - frontend
       - backend
+      - myhome-network
     ports:
       - "3010:3000"
 
@@ -26,54 +27,19 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     container_name: kvphil-backend
-    network_mode: service:vpn
-    depends_on:
-      vpn:
-        condition: service_healthy
     env_file:
       - .env
+    networks:
+      - frontend
+      - backend
+      - myhome-network
+    ports:
+      - "8080:8080"
     command: >
       sh -c '
-      echo "Waiting for VPN service to be fully ready..."
-      sleep 15 &&
       echo "Starting FastAPI application..." &&
       uvicorn backend.main:app --host 0.0.0.0 --port 8080 --workers 4
       '
-
-  vpn:
-    image: ghcr.io/bubuntux/nordvpn
-    cap_add:
-      - NET_ADMIN
-      - SYS_MODULE
-    environment:
-      - TOKEN=${NORDVPN_TOKEN}
-      - CONNECT=Taiwan
-      - TECHNOLOGY=NordLynx
-      - DNS=1.1.1.1,8.8.8.8 # Set DNS through environment
-      - NETWORK=192.168.1.0/24
-      - WHITELIST=192.168.1.0/24,172.16.0.0/12
-    ports:
-      - "8080:8080"
-    networks:
-      backend:
-        aliases:
-          - vpn-host
-      frontend:
-        aliases:
-          - vpn-host
-    sysctls:
-      - net.ipv4.ip_forward=1
-      - net.ipv6.conf.all.disable_ipv6=1
-    restart: unless-stopped
-    volumes:
-      - /lib/modules:/lib/modules:ro
-    healthcheck:
-      test:
-        ["CMD-SHELL", "nordvpn status | grep -q 'Status: Connected' || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
 
 networks:
   frontend:
@@ -81,3 +47,6 @@ networks:
   backend:
     name: kvphil_backend
     driver: bridge
+  myhome-network:
+    external: true
+    name: myhome-network
